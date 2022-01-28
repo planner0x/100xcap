@@ -1,0 +1,18 @@
+import fxcmpy
+api = fxcmpy.fxcmpy(access_token=YOUR_FXCM_API_TOKEN,
+log_level='error')
+
+import time
+import numpy as np
+import pandas as pd
+import datetime as dt
+from pylab import mpl, plt
+plt.style.use('seaborn')
+mpl.rcParams['saveFig.dpi'] = 300
+mpl.rcParams['font.family'] = 'serif'
+
+from fxcmpy import fxcm_tick_data_reader as tdr
+print(tdr.get_available_symbols())
+
+start = dt.datetime(2020, 3, 25)
+stop = dt.datetime()

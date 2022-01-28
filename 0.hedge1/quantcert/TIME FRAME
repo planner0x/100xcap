@@ -1,0 +1,59 @@
+import ccxt
+import h5py
+import asyncio
+import time
+from datetime import datetime
+from dateutil import tz
+import numpy as np
+from binance.client import Client
+api_key = "YrDGAnac0OnT4D6SHPkRqdvxpvM73Fm4F0b2fe5eStDsZbP3b6R1q2IikPtXjmBw"
+api_secret = "TZ8TBQ1FHfwMnHiCZzjFBWaoCZDKxJT4BTLcAPxjjo5Yd1BJe18SsrrrffXUY4QFbmM"
+client = Client(api_key, api_secret)
+
+
+# Timesleep 120 seconds
+# time.sleep(120)
+# instantiating the connection and losd market
+exchange_id = 'ftx'
+exchange_class = getattr(ccxt, exchange_id)
+exchange = exchange_class({"api_key": "YrDGAnac0OnT4D6SHPkRqdvxpvM73Fm4F0b2fe5eStDsZbP3b6R1q2IikPtXjmBw",
+                           "api_secret": "TZ8TBQ1FHfwMnHiCZzjFBWaoCZDKxJT4BTLcAPxjjo5Yd1BJe18SsrrrffXUY4QFbmM",
+                           'timeout': 30000,
+                           'enableRateLimit': True,
+                           })
+exchange.loadMarkets()
+#   Run conditionals
+
+
+# If current time > **last dataset utc + 4 hour**
+    # Collect 4 hour candlestick data feed
+four_hour_kline = exchange.fetchOHLCV("ETH/USDT", timeframe='4h')# limit = undefined, params = {})
+eth_data_feed =  (four_hour_kline[-1])
+print(f"Time : {eth_data_feed[0]}, Open : {eth_data_feed[1]}, High : {eth_data_feed[2]}, Low : {eth_data_feed[3]}, Close: {eth_data_feed[4]}")
+four_hour_kline = exchange.fetchOHLCV("BTC/USDT", timeframe='4h')# limit = undefined, params = {})
+btc_data_feed =  (four_hour_kline[-1])
+print(f"Time : {btc_data_feed[0]}, Open : {btc_data_feed[1]}, High : {btc_data_feed[2]}, Low : {btc_data_feed[3]}, Close: {btc_data_feed[4]}")
+#current_data_feed = [btc_data_feed, eth_data_feed]
+time_1 = client.get_server_time()
+time_1 = time_1["serverTime"]
+time_2 = btc_data_feed[0]
+
+avg_price_btc = client.get_avg_price(symbol='BTCUSDT')
+avg_price_eth = client.get_avg_price(symbol = "ETHUSDT")
+avg_price_btc = avg_price_btc["price"]
+avg_price_eth = avg_price_eth["price"]
+print(f"BTC : {avg_price_btc}, ETH : {avg_price_eth}")
+time_1 = btc_data_feed[0]
+print(time_1, time_2)
+#   write current data feed toI
+# BTC_data_lib = h5py.File('data.h5', 'w')
+# BTC_data_lib.close()
+# BTC_data_lib = h5py.File('data.h5', 'r')
+# BTC_data_lib.keys()
+# symbol = "ETH/USDT"
+
+#while True:
+#    time.sleep(90)
+# ttime_1 = datetime.utcfromtimestamp(time_1)
+# ttime_2 = datetime.utcfromtimestamp(time_2)
+# add to on disk dataset []

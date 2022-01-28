@@ -1,0 +1,32 @@
+import pandas as pd
+import numpy as np
+from matplotlib import pyplot as plt
+
+
+raw = pd.read_csv('OANDA_XAUUSD, 60.csv',index_col =0, parse_dates= True).dropna()
+raw.info()
+data = pd.DataFrame(raw['GDX'])
+data.rename(columns={'GDX':'price'}, inplace = True)
+data['returns'] = np.log(data['price']/data['price'].shift(1))
+
+#SMA section
+SMA = 25
+data['SMA'] = data['price'].rolling(SMA).mean()
+threshold = 3.5
+data['distance'] = data['price'] - data['SMA']
+data['distance'].dropna().plot(figsize = (10,6),legend = True)
+plt.axhline(threshold,color = 'r')
+plt.axhline(-threshold,color = 'r')
+plt.axhline(0,color = 'r');
+
+#positioning
+
+data['position'] = np.where(data['distance'] > threshold,-1,np.nan)
+data['position'] = np.where(data['distance'] < -threshold, 1, data['position'])
+
+data['position'] = np.where(data['distance'] * data['distance'].shift(1) < 0, 0, data['position'])
+data['position'] = data['position'].ffill().fillna(0)
+data['position'].iloc[SMA:].plot(ylim=[-1.1,1.1],figsize=(10,6));
+
+data['strategy'] = data['position'].shift(1) * data['returns']
+data[['returns', 'strategy']].dropna().cumsum().apply(np.exp).plot(figsize=(10,6));
